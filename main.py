@@ -10,7 +10,7 @@ import httpx
 import os
 import json
 from dotenv import load_dotenv
-from pymongo import MongoClient
+# from pymongo import MongoClient
 from datetime import datetime
 import asyncio
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -22,10 +22,10 @@ load_dotenv()
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 AGENT_ID = os.getenv("AGENT_ID")
 ENVIRONMENT_ID = os.getenv("ENVIRONMENT_ID")
-client = MongoClient(os.getenv("MONGO_URI"))
+# client = MongoClient(os.getenv("MONGO_URI"))
 
-db = client["chat_app"]
-messages_collection = db["messages"]
+# db = client["chat_app"]
+# messages_collection = db["messages"]
 # 🚨 Fail fast if missing
 if not ANTHROPIC_API_KEY:
     raise Exception("❌ ANTHROPIC_API_KEY is missing")
@@ -143,12 +143,12 @@ async def chat(req: MessageRequest):
         await send_event_with_retry(req.session_id, req.message)
 
         # Save to MongoDB
-        messages_collection.insert_one({
-            "session_id": req.session_id,
-            "role": "user",
-            "content": req.message,
-            "created_at": datetime.utcnow()
-        })
+        # messages_collection.insert_one({
+        #     "session_id": req.session_id,
+        #     "role": "user",
+        #     "content": req.message,
+        #     "created_at": datetime.utcnow()
+        # })
 
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 429:
@@ -193,12 +193,12 @@ async def chat(req: MessageRequest):
 
                                 elif etype == "status_idle":
                                     if full_response.strip():
-                                        messages_collection.insert_one({
-                                            "session_id": req.session_id,
-                                            "role": "agent",
-                                            "content": full_response,
-                                            "created_at": datetime.utcnow()
-                                        })
+                                        # messages_collection.insert_one({
+                                        #     "session_id": req.session_id,
+                                        #     "role": "agent",
+                                        #     "content": full_response,
+                                        #     "created_at": datetime.utcnow()
+                                        # })
                                         yield f"data: {json.dumps({'type': 'done'})}\n\n"
                                         return
 
@@ -213,19 +213,20 @@ async def chat(req: MessageRequest):
 @app.get("/api/messages/{session_id}")
 async def get_messages(session_id: str):
 
-    docs = list(
-        messages_collection
-        .find({"session_id": session_id})
-        .sort("created_at", 1)
-    )
+    # docs = list(
+    #     messages_collection
+    #     .find({"session_id": session_id})
+    #     .sort("created_at", 1)
+    # )
 
-    return [
-        {
-            "role": d["role"],
-            "content": d["content"]
-        }
-        for d in docs
-    ]
+    # return [
+    #     {
+    #         "role": d["role"],
+    #         "content": d["content"]
+    #     }
+    #     for d in docs
+    # ]
+    return 0
 
 # ─────────────────────────────────────────────
 # Health Check
